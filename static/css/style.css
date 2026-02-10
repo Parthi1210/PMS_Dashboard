@@ -1,0 +1,74 @@
+body{font-family: 'Century Gothic', Arial, sans-serif; background:#F2F2F2; color:#262626}
+#top-logo{height:44px}
+.main-header{font-size:1.6rem}
+
+/* Enhanced metric cards */
+.metric{background:#fff; border:1px solid #ddd; border-radius:8px; padding:20px; box-shadow:0 2px 4px rgba(0,0,0,0.08); transition:all 0.3s ease}
+.metric:hover{box-shadow:0 4px 12px rgba(0,0,0,0.12)}
+.metric-label{font-size:14px; font-weight:600; color:#666; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px}
+.metric-value{font-size:28px; font-weight:700; color:#009ADD}
+
+.card{background:#fff; border-radius:6px; border:1px solid #ddd}
+.page{margin-bottom:40px}
+
+/* Machine list */
+.machine-list{display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:15px}
+.machine-card{background:#fff; border:2px solid #ddd; border-radius:8px; padding:15px; cursor:pointer; transition:all 0.3s ease; text-align:center}
+.machine-card:hover{border-color:#009ADD; box-shadow:0 4px 12px rgba(0,154,221,0.2); transform:translateY(-2px)}
+.machine-card.active{border-color:#009ADD; background:#e3f2fd; box-shadow:0 4px 12px rgba(0,154,221,0.3)}
+.machine-card-id{font-weight:700; color:#009ADD; font-size:16px; margin-bottom:8px}
+.machine-card-status{font-size:12px; padding:4px 8px; border-radius:4px; display:inline-block; font-weight:600}
+.machine-card-status.Healthy{background:#82BC00; color:#fff}
+.machine-card-status.Warning{background:#F1B52C; color:#262626}
+.machine-card-status.Critical{background:#BA257D; color:#fff}
+
+/* Chart cards and containers */
+.chart-card{padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.08); transition:box-shadow 0.3s ease; overflow:hidden}
+.chart-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.12)}
+.chart-title{font-size:16px; font-weight:600; color:#262626; margin-bottom:15px; padding-bottom:10px; border-bottom:2px solid #009ADD}
+.chart-container{height:400px; width:100%; position:relative; overflow:hidden}
+
+/* Make the Forecast Gantt container able to scroll and fit inside its card */
+#maintenance-gantt{width:100%; box-sizing:border-box; overflow:auto}
+
+/* Custom navbar to match provided design */
+.custom-navbar{background:#232323; height:64px; padding:0 1.25rem;}
+.custom-navbar img#top-logo{height:42px}
+.nav-wide .nav-link{color:#ffffff; font-size:18px; margin:0 18px; padding:8px 6px}
+.nav-wide .nav-link.active{background:transparent; color:#ffffff; font-weight:600}
+.nav-wide .nav-link:hover{color:#cfcfcf}
+/* space main content below fixed navbar */
+body{padding-top:72px}
+
+/* Header line under navbar */
+.header-bar{background:#ffffff; border-bottom:1px solid #e6e6e6; padding:10px 0;}
+.header-title{margin:0; font-size:20px; font-weight:600; color:#262626; padding-left:8px}
+
+/* Modal */
+.modal-overlay{position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:1000}
+.modal-overlay.d-none{display:none}
+.modal-content{background:#fff; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.2); width:90%; max-width:900px; max-height:90vh; overflow-y:auto}
+.modal-header{display:flex; justify-content:space-between; align-items:center; padding:20px; border-bottom:2px solid #009ADD}
+.modal-header h3{margin:0; color:#262626; font-size:20px}
+.modal-close{background:none; border:none; font-size:28px; cursor:pointer; color:#666; padding:0; width:32px; height:32px; display:flex; align-items:center; justify-content:center}
+.modal-close:hover{color:#009ADD}
+.modal-body{padding:20px}
+
+/* Modal info card */
+.modal-info-card{background:#f9f9f9; border:1px solid #ddd; border-radius:8px; padding:15px}
+.modal-info-card h5{margin-top:0; color:#009ADD; font-weight:700}
+.info-row{display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee}
+.info-row:last-child{border-bottom:none}
+.info-row span{color:#666; font-weight:600}
+.info-row strong{color:#262626}
+.status-healthy{color:#82BC00; font-weight:700}
+.status-warning{color:#F1B52C; font-weight:700}
+.status-critical{color:#BA257D; font-weight:700}
+
+/* Predictive maintenance suggestion box */
+.predictive-box{border:2px dashed #009ADD; background:linear-gradient(90deg, rgba(0,154,221,0.03), rgba(0,154,221,0.01)); padding:14px; border-radius:8px; margin-top:12px}
+.predictive-box h6{margin:0 0 6px 0; color:#0077aa}
+.predictive-box p{margin:0 0 8px 0; color:#444}
+.predictive-box .pm-actions{margin-top:8px}
+.predictive-box .btn-schedule{background:#009ADD; color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer}
+.predictive-box .btn-schedule:hover{background:#007bb3}
