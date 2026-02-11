@@ -44,6 +44,20 @@ body{padding-top:72px}
 .header-bar{background:#ffffff; border-bottom:1px solid #e6e6e6; padding:10px 0;}
 .header-title{margin:0; font-size:20px; font-weight:600; color:#262626; padding-left:8px}
 
+/* Right-aligned dropdown nav */
+.nav-right{position:relative}
+.nav-toggle{background:linear-gradient(90deg,#009ADD,#0077B6); color:#fff; border:none; padding:8px 14px; border-radius:24px; font-weight:700; box-shadow:0 4px 12px rgba(0,0,0,0.12); cursor:pointer}
+.nav-toggle:hover{transform:translateY(-1px); box-shadow:0 6px 16px rgba(0,0,0,0.14)}
+.nav-toggle.open{box-shadow:0 8px 20px rgba(0,0,0,0.18)}
+.nav-dropdown-menu{position:absolute; right:0; top:48px; min-width:220px; background:#fff; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,0.12); padding:8px 6px; display:none; z-index:1100}
+.nav-dropdown-menu.show{display:block}
+.nav-dropdown-menu .dropdown-item{display:block; padding:10px 12px; color:#262626; border-radius:6px; text-decoration:none; font-weight:600}
+.nav-dropdown-menu .dropdown-item:hover{background:#f1f7fb; color:#0077B6}
+
+@media (min-width:1200px){
+	.nav-toggle{padding:10px 18px}
+}
+
 /* Modal */
 .modal-overlay{position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:1000}
 .modal-overlay.d-none{display:none}
@@ -64,11 +78,3 @@ body{padding-top:72px}
 .status-healthy{color:#82BC00; font-weight:700}
 .status-warning{color:#F1B52C; font-weight:700}
 .status-critical{color:#BA257D; font-weight:700}
-
-/* Predictive maintenance suggestion box */
-.predictive-box{border:2px dashed #009ADD; background:linear-gradient(90deg, rgba(0,154,221,0.03), rgba(0,154,221,0.01)); padding:14px; border-radius:8px; margin-top:12px}
-.predictive-box h6{margin:0 0 6px 0; color:#0077aa}
-.predictive-box p{margin:0 0 8px 0; color:#444}
-.predictive-box .pm-actions{margin-top:8px}
-.predictive-box .btn-schedule{background:#009ADD; color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer}
-.predictive-box .btn-schedule:hover{background:#007bb3}

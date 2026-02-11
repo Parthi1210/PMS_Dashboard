@@ -27,6 +27,24 @@ qsa('a[data-page]').forEach(a=>{
   });
 });
 
+// Dropdown toggle behavior for right-nav
+const navToggle = qs('#nav-dropdown-toggle');
+const navMenu = qs('#nav-dropdown-menu');
+if(navToggle && navMenu){
+  navToggle.addEventListener('click', e=>{
+    e.stopPropagation();
+    navMenu.classList.toggle('show');
+    navToggle.classList.toggle('open');
+  });
+  // Close when clicking outside
+  document.addEventListener('click', ()=>{ navMenu.classList.remove('show'); navToggle.classList.remove('open'); });
+  // Close on menu item click
+  navMenu.addEventListener('click', e=>{
+    const target = e.target.closest('a[data-page]');
+    if(target){ navMenu.classList.remove('show'); navToggle.classList.remove('open'); }
+  });
+}
+
 // Initialize overview metrics and charts
 function initOverview(){
   const total = machines.length;
@@ -116,33 +134,6 @@ function openMachineModal(machineId){
       <div class="info-row"><span>Downtime Hours:</span><strong>${m.downtime_hours}</strong></div>
     </div>
   `;
-  // Predictive maintenance suggestion box
-  // Determine suggestion based on failure_probability
-  const today = new Date();
-  let suggestionText = '';
-  let suggestedDate = new Date(today);
-  if(m.failure_probability >= 0.6){
-    suggestionText = 'Immediate preventive maintenance recommended.';
-    suggestedDate.setDate(today.getDate() + 1);
-  } else if(m.failure_probability >= 0.3){
-    suggestionText = 'Schedule maintenance within 7 days to reduce risk.';
-    suggestedDate.setDate(today.getDate() + 7);
-  } else {
-    suggestionText = 'Monitor and schedule during next planned window (30 days).';
-    suggestedDate.setDate(today.getDate() + 30);
-  }
-  const sugDateStr = suggestedDate.toISOString().slice(0,10);
-  const predictiveHtml = `
-    <div class="predictive-box">
-      <h6>Predictive Maintenance Recommendation</h6>
-      <p>${suggestionText}</p>
-      <p><strong>Suggested date:</strong> ${sugDateStr}</p>
-      <div class="pm-actions">
-        <button class="btn-schedule" onclick="scheduleMaintenance('${m.machine_id}','${sugDateStr}')">Schedule Maintenance</button>
-      </div>
-    </div>
-  `;
-  qs('#modal-machine-info').insertAdjacentHTML('beforeend', predictiveHtml);
   
   // Machine trend chart
   // Show modal first so Plotly can measure the visible container
@@ -153,36 +144,6 @@ function openMachineModal(machineId){
     // also trigger a resize in case Plotly needs it
     try{ Plotly.Plots.resize(qs('#modal-machine-chart')) }catch(e){}
   }, 60);
-}
-
-// Schedule a maintenance event (adds to maintenanceEvents and refreshes Forecast)
-function scheduleMaintenance(machineId, startDate){
-  const m = machines.find(x=>x.machine_id===machineId);
-  if(!m) return alert('Machine not found');
-  const start = new Date(startDate);
-  const end = new Date(start);
-  end.setDate(start.getDate() + 1);
-  const ev = {
-    machine_id: m.machine_id,
-    assembly_line: m.assembly_line,
-    start: start.toISOString().slice(0,10),
-    end: end.toISOString().slice(0,10),
-    startISO: start.toISOString(),
-    endISO: end.toISOString(),
-    durationDays: 1,
-    durationMs: end.getTime() - start.getTime(),
-    type: 'Preventive'
-  };
-  maintenanceEvents.push(ev);
-  // keep events sorted
-  maintenanceEvents.sort((a,b)=> new Date(a.startISO) - new Date(b.startISO));
-  // refresh Forecast if visible
-  if(qs('#Forecast') && !qs('#Forecast').classList.contains('d-none')){
-    try{ initForecastPage(); }catch(e){}
-  }
-  // Close modal and inform user
-  closeMachineModal();
-  alert('Maintenance scheduled for ' + machineId + ' on ' + ev.start);
 }
 
 function closeMachineModal(){
@@ -238,57 +199,93 @@ function renderMachine(id){
   else rec.innerHTML = `<div class="alert alert-success">✅ <strong>HEALTHY</strong>: Continue normal operations with regular monitoring.</div>`;
 }
 
-// Forecast (Maintenance Gantt)
+// Forecast (Maintenance Gantt - Historical + Upcoming)
 function initForecastPage(){
   const container = qs('#maintenance-gantt');
   container.innerHTML = '';
-  if(typeof maintenanceEvents === 'undefined' || maintenanceEvents.length === 0){
+
+  // Combine historical maintenance events with upcoming slots
+  let allEvents = [];
+  
+  // Add historical maintenance events
+  if(typeof maintenanceEvents !== 'undefined' && maintenanceEvents.length > 0){
+    allEvents = maintenanceEvents.slice();
+  }
+  
+  // Add upcoming maintenance slots for the next 90 days (3 months)
+  const today = new Date();
+  const upcoming = [];
+  machines.forEach(m => {
+    // Create 2-3 upcoming slots per machine spread across next 90 days
+    const slotCount = 1 + Math.floor(Math.random() * 2);
+    for(let i = 0; i < slotCount; i++){
+      const daysOffset = 10 + Math.floor(Math.random() * 80); // spread over next 90 days
+      const start = new Date(today);
+      start.setDate(today.getDate() + daysOffset);
+      const isScheduled = Math.random() > 0.4; // 60% scheduled, 40% available
+      const durDays = isScheduled ? (2 + Math.floor(Math.random()*2)) : 3;
+      const end = new Date(start);
+      end.setDate(start.getDate() + durDays);
+      upcoming.push({
+        machine_id: m.machine_id,
+        assembly_line: m.assembly_line,
+        start: start.toISOString().slice(0,10),
+        end: end.toISOString().slice(0,10),
+        startISO: start.toISOString(),
+        endISO: end.toISOString(),
+        durationDays: durDays,
+        durationMs: (end.getTime() - start.getTime()),
+        type: isScheduled ? 'Scheduled' : 'Available',
+        isScheduled: isScheduled
+      });
+    }
+  });
+  
+  allEvents = allEvents.concat(upcoming);
+  allEvents.sort((a,b)=> new Date(a.startISO) - new Date(b.startISO));
+  console.log('initForecastPage: total events=', allEvents.length);
+  
+  if(allEvents.length === 0){
     container.innerHTML = '<div class="alert alert-info">No maintenance events available</div>';
     return;
   }
 
   const sel = qs('#forecast-assembly-select');
-  // populate select (All + lines 1..5)
+  // populate select with assembly lines 1-5 only (no "All Lines")
   if(sel){
     sel.innerHTML = '';
-    const optAll = document.createElement('option'); optAll.value='all'; optAll.textContent='All Lines'; sel.appendChild(optAll);
-    for(let i=1;i<=5;i++){ const o = document.createElement('option'); o.value = String(i); o.textContent = `Assembly Line ${i}`; sel.appendChild(o); }
-    sel.value = 'all';
+    for(let i=1;i<=5;i++){ 
+      const o = document.createElement('option'); 
+      o.value = String(i); 
+      o.textContent = `Assembly Line ${i}`; 
+      sel.appendChild(o); 
+    }
+    sel.value = '1'; // default to line 1
   }
 
   // render helper
   function renderFor(line){
-    const events = (line && line!=='all') ? maintenanceEvents.filter(e=> String(e.assembly_line) === String(line)) : maintenanceEvents.slice();
-    // sort by start
+    const events = line ? allEvents.filter(e=> String(e.assembly_line) === String(line)) : allEvents.slice();
     events.sort((a,b)=> new Date(a.startISO) - new Date(b.startISO));
 
     const y = events.map(e=> e.machine_id + ' (L' + e.assembly_line + ')');
     const x = events.map(e=> e.durationMs);
     const base = events.map(e=> e.startISO);
-    const colors = events.map(e=> e.type==='Corrective' ? '#d9534f' : '#5bc0de');
+    // Color: historical=blue/red, upcoming: green=scheduled, light gray=available
+    const colors = events.map(e=> {
+      const isHistorical = !upcoming.some(u=> u.startISO === e.startISO);
+      if(isHistorical){
+        return e.type==='Corrective' ? '#d9534f' : '#5bc0de';
+      } else {
+        return e.isScheduled ? '#82BC00' : '#d3d3d3';
+      }
+    });
     const text = events.map(e=> `${e.machine_id} — ${e.type}: ${e.start} → ${e.end}`);
 
     const trace = {
       type: 'bar', orientation: 'h', x: x, y: y, base: base,
       marker: {color: colors}, hoverinfo:'text', text: text
     };
-
-    // Limit to next 30 days and add a dashed future-month overlay
-    const today = new Date();
-    const windowStart = new Date(today);
-    const windowEnd = new Date(today);
-    windowEnd.setDate(windowEnd.getDate() + 30);
-
-    // Filter events to those that overlap the [windowStart, windowEnd] range
-    const winStartISO = windowStart.toISOString();
-    const winEndISO = windowEnd.toISOString();
-    const visibleEvents = events.filter(ev => !(new Date(ev.endISO) < windowStart || new Date(ev.startISO) > windowEnd));
-
-    const y_vis = visibleEvents.map(e=> e.machine_id + ' (L' + e.assembly_line + ')');
-    const x_vis = visibleEvents.map(e=> e.durationMs);
-    const base_vis = visibleEvents.map(e=> e.startISO);
-    const colors_vis = visibleEvents.map(e=> e.type==='Corrective' ? '#d9534f' : '#5bc0de');
-    const text_vis = visibleEvents.map(e=> `${e.machine_id} — ${e.type}: ${e.start} → ${e.end}`);
 
     // sizing logic
     const viewportPadding = 200;
@@ -299,32 +296,38 @@ function initForecastPage(){
     container.style.height = chartHeight + 'px';
 
     const layout = {
-      title: 'Maintenance History (30-Day Forecast)', barmode:'stack', bargap:0.16, bargroupgap:0.06,
-      xaxis:{type:'date', title:'Date', range:[winStartISO, winEndISO]},
-      margin:{l:90,r:20,t:40,b:80}, height:chartHeight,
-      yaxis:{automargin:true, tickfont:{size:10}},
-      shapes:[
-        // dashed rectangle highlighting the future 30-day window
-        {type:'rect', xref:'x', yref:'paper', x0:winStartISO, x1:winEndISO, y0:0, y1:1,
-          line:{color:'#009ADD', width:1, dash:'dot'}, fillcolor:'rgba(0,154,221,0.03)'}
-      ]
+      title: 'Maintenance Forecast (Historical + Upcoming)', 
+      barmode:'stack', 
+      bargap:0.16, 
+      bargroupgap:0.06,
+      xaxis:{type:'date', title:'Date'}, 
+      margin:{l:90,r:20,t:40,b:80}, 
+      height:chartHeight,
+      yaxis:{automargin:true, tickfont:{size:10}}
     };
 
-    // Build visible trace
-    const trace_vis = {type:'bar', orientation:'h', x: x_vis, y: y_vis, base: base_vis, marker:{color: colors_vis}, hoverinfo:'text', text: text_vis};
-    Plotly.react('maintenance-gantt', [trace_vis], layout, {responsive:true});
+    try{
+      Plotly.react('maintenance-gantt', [trace], layout, {responsive:true});
+      console.log('Plotly.react called for', events.length, 'events');
+    }catch(err){
+      console.error('Plotly.react error:', err);
+      container.innerHTML = '<div class="alert alert-danger">Error rendering chart. See console for details.</div>';
+    }
   }
 
   // initial render
-  renderFor(sel ? sel.value : 'all');
+  renderFor(sel ? sel.value : '1');
   if(sel) sel.addEventListener('change', ()=> renderFor(sel.value));
 
   // resize handler
   window.addEventListener('resize', ()=>{
-    const current = sel ? sel.value : 'all';
+    const current = sel ? sel.value : '1';
     renderFor(current);
   });
 }
+
+// Remove old separate functions (commented out for reference)
+// function initUpcomingPage(){...} - now merged into initForecastPage()
 
 // Cost page
 function initCostPage(){

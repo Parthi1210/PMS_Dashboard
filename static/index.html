@@ -14,13 +14,16 @@
           <div class="d-flex align-items-center">
             <img src="../../blue_logo.png" alt="logo" id="top-logo"/>
           </div>
-          <ul class="nav nav-pills nav-wide">
-            <li class="nav-item"><a class="nav-link active" href="#" data-page="Overview">Overview</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" data-page="Machine Health">Machine Health</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" data-page="Forecast">Forecast</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" data-page="Cost Analysis">Cost Analysis</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" data-page="Historical Trends">Historical Trends</a></li>
-          </ul>
+          <div class="nav-right d-flex align-items-center">
+            <button id="nav-dropdown-toggle" class="nav-toggle" aria-expanded="false">Menu ▾</button>
+            <div id="nav-dropdown-menu" class="nav-dropdown-menu" aria-labelledby="nav-dropdown-toggle">
+              <a class="dropdown-item" href="#" data-page="Overview">Overview</a>
+              <a class="dropdown-item" href="#" data-page="Machine Health">Machine Health</a>
+              <a class="dropdown-item" href="#" data-page="Forecast">Forecast</a>
+              <a class="dropdown-item" href="#" data-page="Cost Analysis">Cost Analysis</a>
+              <a class="dropdown-item" href="#" data-page="Historical Trends">Historical Trends</a>
+            </div>
+          </div>
         </div>
       </nav>
       <!-- Header line under navbar -->
