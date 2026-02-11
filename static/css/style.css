@@ -78,3 +78,14 @@ body{padding-top:72px}
 .status-healthy{color:#82BC00; font-weight:700}
 .status-warning{color:#F1B52C; font-weight:700}
 .status-critical{color:#BA257D; font-weight:700}
+
+/* Critical machines table */
+.critical-table-card{border-left:4px solid #BA257D; box-shadow:0 2px 8px rgba(186,37,125,0.10)}
+#critical-machines-table th{background:#f8f0f5; color:#BA257D; font-size:13px; text-transform:uppercase; letter-spacing:0.4px; border-bottom:2px solid #BA257D; white-space:nowrap}
+#critical-machines-table td{vertical-align:middle; font-size:14px}
+#critical-machines-table tbody tr:hover{background:#fdf2f8}
+.health-badge{display:inline-block; padding:3px 10px; border-radius:12px; font-weight:700; font-size:13px}
+.health-badge.health-critical{background:#fce4ec; color:#BA257D}
+.prob-badge{display:inline-block; padding:3px 10px; border-radius:12px; font-weight:700; font-size:13px; background:#fff3e0; color:#e65100}
+.btn-schedule{background:linear-gradient(90deg,#BA257D,#d84a9f); color:#fff; border:none; border-radius:20px; padding:5px 14px; font-weight:600; font-size:12px; white-space:nowrap; transition:all 0.2s ease}
+.btn-schedule:hover{transform:translateY(-1px); box-shadow:0 3px 10px rgba(186,37,125,0.3); color:#fff}
